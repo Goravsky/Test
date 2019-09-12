@@ -35,14 +35,13 @@ public class TransactionController {
         Status status = Status.valueOf(incomeContract.getStatus());
         Code dbCode = codeRepository.findByCode(code);
         if(dbCode == null){
-            transactionsRepository.saveAndFlush(new Transaction(new Code(code),status,time,contactNumber));
-            System.out.println("Saved: " + code + "\n" + contactNumber + "\n" + status);
+            transactionsRepository.save(new Transaction(new Code(code),status,time,contactNumber));
         }else{
             transactionsRepository.saveWithCode(dbCode.getId(), status.name(), time, contactNumber);
         }
     }
 
-    @GetMapping("/allstatuses")
+    @GetMapping("/alltransactions")
     public List<Transaction> getStatuses(){
         List<Transaction> allTransactions = this.transactionsRepository.findAll();
         return allTransactions;

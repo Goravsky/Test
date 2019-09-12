@@ -14,7 +14,6 @@ public class Transaction {
     @GeneratedValue(generator = "increment")
     private long id;
 
-
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "code_id", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})

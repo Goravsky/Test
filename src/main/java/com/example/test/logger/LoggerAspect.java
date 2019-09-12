@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 public class LoggerAspect {
     private final Log log = LogFactory.getLog(this.getClass());
 
-    @Around("execution(* com.example.test.controller.TransactionController.addContract(..))")
-    public void logTimeMethod(ProceedingJoinPoint joinPoint) throws Throwable {
+    @AfterReturning("execution(* com.example.test.controller.TransactionController.addContract(..))")
+    public void logInserMethod(JoinPoint joinPoint)throws Throwable{
         ContractDto dto = (ContractDto) joinPoint.getArgs()[0];
         String message = "Added transaction: " + "code-" + dto.getCode() + " status-" + dto.getStatus() +
                 " contact-number-" + dto.getContactNumber();
