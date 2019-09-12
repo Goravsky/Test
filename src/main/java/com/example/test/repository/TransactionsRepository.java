@@ -15,6 +15,11 @@ public interface TransactionsRepository extends JpaRepository<Transaction, Long>
 
     @Modifying
     @Transactional
+    @Query(value = "UPDATE transactions SET time = ?2 WHERE id = ?1", nativeQuery = true)
+    void update(long id, Timestamp time);
+
+    @Modifying
+    @Transactional
     @Query(value = "INSERT INTO transactions (code_id, status, time, contact_number) VALUES (?1,?2,?3,?4)", nativeQuery = true)
     void saveWithCode (long codeId, String status, Timestamp time, int cNum);
 }

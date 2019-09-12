@@ -28,16 +28,30 @@ public class TransactionController {
     }
 
     @PostMapping("/new")
-    public void addContract(@RequestBody ContractDto incomeContract){
+    public void addContract(@RequestBody ContractDto incomeContract) {
         int code = incomeContract.getCode();
         int contactNumber = incomeContract.getContactNumber();
         Timestamp time = new Timestamp(System.currentTimeMillis());
         Status status = Status.valueOf(incomeContract.getStatus());
+
         Code dbCode = codeRepository.findByCode(code);
-        if(dbCode == null){
-            transactionsRepository.save(new Transaction(new Code(code),status,time,contactNumber));
-        }else{
-            transactionsRepository.saveWithCode(dbCode.getId(), status.name(), time, contactNumber);
+        if (dbCode == null) {
+            transactionsRepository.save(new Transaction(new Code(code), status, time, contactNumber));
+        } else {        //если код есть в базе
+            boolean statusFlag = false;
+            long id = 0;
+            List<Transaction> curTrans = transactionsRepository.findByCode(dbCode.getCode());
+            for (Transaction tran : curTrans) {
+                if (tran.getStatus() == status) {      //если есть код с таким же статусом
+                    statusFlag = true;
+                    id = tran.getId();
+                }
+            }
+            if (statusFlag == true && id != 0) {
+                transactionsRepository.update(id, time);
+            }else{
+                transactionsRepository.saveWithCode(dbCode.getId(), status.name(), time, contactNumber);
+            }
         }
     }
 
