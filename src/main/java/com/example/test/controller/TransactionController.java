@@ -9,6 +9,7 @@ import com.example.test.repository.TransactionsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,24 +33,29 @@ public class TransactionController {
         int code = incomeContract.getCode();
         int contactNumber = incomeContract.getContactNumber();
         Timestamp time = new Timestamp(System.currentTimeMillis());
-        Status status = Status.valueOf(incomeContract.getStatus());
+        Status status;
+        try {
+            status = Status.valueOf(incomeContract.getStatus());
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
 
         Code dbCode = codeRepository.findByCode(code);
         if (dbCode == null) {
             transactionsRepository.save(new Transaction(new Code(code), status, time, contactNumber));
-        } else {        //если код есть в базе
-            boolean statusFlag = false;
+        } else {
+            boolean statusFlag = false;                 //если код есть в базе
             long id = 0;
             List<Transaction> curTrans = transactionsRepository.findByCode(dbCode.getCode());
             for (Transaction tran : curTrans) {
-                if (tran.getStatus() == status) {      //если есть код с таким же статусом
+                if (tran.getStatus() == status) {
                     statusFlag = true;
                     id = tran.getId();
                 }
             }
-            if (statusFlag == true && id != 0) {
-                transactionsRepository.update(id, time);
-            }else{
+            if (statusFlag == true && id != 0) {        //если есть код с таким же статусом
+                transactionsRepository.update(id, time, contactNumber);
+            } else {                                    //если есть код но такого же статуса нет
                 transactionsRepository.saveWithCode(dbCode.getId(), status.name(), time, contactNumber);
             }
         }

@@ -14,11 +14,18 @@ public class LoggerAspect {
     private final Log log = LogFactory.getLog(this.getClass());
 
     @AfterReturning("execution(* com.example.test.controller.TransactionController.addContract(..))")
-    public void logInserMethod(JoinPoint joinPoint)throws Throwable{
+    public void logInsertMethod(JoinPoint joinPoint)throws Throwable{
         ContractDto dto = (ContractDto) joinPoint.getArgs()[0];
         String message = "Added transaction: " + "code-" + dto.getCode() + " status-" + dto.getStatus() +
                 " contact-number-" + dto.getContactNumber();
         log.info(message);
+    }
+
+    @AfterThrowing(pointcut = "execution(* com.example.test.controller.TransactionController.addContract(..))", throwing = "e")
+    public void logInsertMethodException(JoinPoint joinPoint, Exception e){
+        ContractDto dto = (ContractDto) joinPoint.getArgs()[0];
+        String message = "Error inserting status: " + dto.getStatus();
+        log.error(message);
     }
 
     @AfterReturning(value = "execution(* com.example.test.controller.TransactionController.*(..))", returning = "ret")
